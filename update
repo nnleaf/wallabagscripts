@@ -1,0 +1,74 @@
+#!/bin/bash
+#     ////     //  ////     //
+#    // //    //  // //    //
+#   //  //   //  //  //   //
+#  //   //  //  //   //  //
+# //    // //  //    // //
+#//     ////  //     ////
+#
+# 20210220 - First script for updating Wallabag VM
+#
+echo "------------------------------------------"
+echo "--[ Debian Version $(cat /etc/debian_version), Update? (y/n) ]--"
+echo "------------------------------------------"
+read -p ""
+if [[ $REPLY =~ ^[Yy]$ ]]
+then
+  echo "-----------------------"
+  echo "--[ Updating Debian ]--"
+  echo "-----------------------"
+  sudo apt-get update
+  echo "------------------------"
+  echo "--[ Upgrading Debian ]--"
+  echo "------------------------"
+  sudo apt-get upgrade
+  echo "-------------------------"
+  echo "--[ Running autoclean ]--"
+  echo "-------------------------"
+  sudo apt-get autoclean
+fi
+echo "------------------------"
+echo "--[ Updating mlocate ]--"
+echo "------------------------"
+sudo updatedb
+echo "-------------------------"
+echo "--[ Check Logs? (y/n) ]--"
+echo "-------------------------"
+read -p ""
+if [[ $REPLY =~ ^[Yy]$ ]]
+then
+  echo "---------------------------------------"
+  echo "--[ Checking Unattended Updates log ]--"
+  echo "---------------------------------------"
+  sudo tail -n 5 /var/log/unattended-upgrades/unattended-upgrades.log
+  echo "---------------------------------------"
+  echo "--[ Checking if fail2ban is running ]--"
+  echo "---------------------------------------"
+  sudo fail2ban-client status
+  echo "---------------------------"
+  echo "--[ Checking UFW status ]--"
+  echo "---------------------------"
+  sudo ufw status
+  echo "--------------------------------------"
+  echo "--[ Check Disk Access Speed? (y/n) ]--"
+  echo "--------------------------------------"
+  read -p ""
+  if [[ $REPLY =~ ^[Yy]$ ]]
+  then
+    echo "---------------------------------"
+    echo "--[ Testing disk access speed ]--"
+    echo "---------------------------------"
+    sudo hdparm -tT /dev/sda1
+  fi
+  echo "--------------------------------"
+  echo "--[ Run rkhunter scan? (y/n) ]--"
+  echo "--------------------------------"
+  read -p ""
+  if [[ $REPLY =~ ^[Yy]$ ]]
+  then
+  echo "-----------------------------"
+  echo "--[ Running rkhunter scan ]--"
+  echo "-----------------------------"
+  sudo rkhunter --check --rwo
+  fi
+fi
